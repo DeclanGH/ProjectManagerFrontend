@@ -9,7 +9,7 @@ import InviteHandler from "./components/helpers/InviteHandler.jsx";
 import GroupPageNavigator from "./components/pages/GroupPageNavigator.jsx";
 import BacklogPage from "./components/pages/BacklogPage.jsx";
 import SprintPage from "./components/pages/SprintPage.jsx";
-import {Analytics} from "@vercel/analytics/vue";
+//import {Analytics} from "@vercel/analytics/vue";
 
 function App() {
 
@@ -31,7 +31,7 @@ function App() {
                     </Route>
                 </Routes>
             </Router>
-            <Analytics />
+            {/*<Analytics />*/}
         </div>
     );
 }
