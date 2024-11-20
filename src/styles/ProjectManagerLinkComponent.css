@@ -1,0 +1,8 @@
+.project-manager-link {
+    color: #0073bb;
+    text-decoration: none;
+}
+
+.project-manager-link:hover {
+    text-decoration: underline;
+}
