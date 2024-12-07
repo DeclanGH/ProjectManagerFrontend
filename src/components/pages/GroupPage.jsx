@@ -8,6 +8,7 @@ import {useQuery} from "@apollo/client";
 import {GET_GROUP_BURNDOWN_CHART_DATA, GET_GROUP_MEMBERS} from "../../graphql/queries.js";
 import {useParams} from "react-router-dom";
 import LoadingSpinner from "../spinners/LoadingSpinner.jsx";
+import UserAssignedBacklogsAccordion from "../accordions/UserAssignedBacklogsAccordion.jsx";
 
 function GroupPage() {
     const {user} = useAuth0();
@@ -21,7 +22,8 @@ function GroupPage() {
             userEmail: user.email,
             projectId: projectId,
             groupId: groupId,
-        }
+        },
+        fetchPolicy: "cache-and-network",
     });
 
     const {
@@ -32,7 +34,8 @@ function GroupPage() {
             userEmail: user.email,
             projectId: projectId,
             groupId: groupId,
-        }
+        },
+        fetchPolicy: "cache-and-network",
     });
 
     const burndownChartData = bdChartData?.getGroupBurndownChartData;
@@ -47,6 +50,10 @@ function GroupPage() {
         <div>
             <Container className="p-4" >
                 <Stack direction="vertical" gap={2}>
+                    <Stack direction="horizontal" className="justify-content-between align-items-center">
+                        <h2>Group Page</h2>
+                    </Stack>
+
                     <GeneralCard>
                         <BurndownChart burndownChartData={burndownChartData}/>
                     </GeneralCard>
@@ -56,6 +63,9 @@ function GroupPage() {
                             <MemberListAccordion
                                 memberList={groupMembersData}
                             />
+                        </GeneralCard>
+                        <GeneralCard>
+                            <UserAssignedBacklogsAccordion />
                         </GeneralCard>
                     </ResponsiveTwoColumnLayout>
                 </Stack>

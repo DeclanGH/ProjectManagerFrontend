@@ -1,10 +1,8 @@
-import {useAuth0} from "@auth0/auth0-react";
 import {useNavigate, useParams} from "react-router-dom";
-import {useQuery} from "@apollo/client";
 import ProjectPageNavBar from "../navbars/ProjectPageNavBar.jsx";
 import {Nav} from "react-bootstrap";
-import {LINK_LABEL, ROUTE} from "../../common/constants.js";
-import {useState} from "react";
+import {LINK_LABEL, LOCAL_STORAGE_ITEM, ROUTE} from "../../common/constants.js";
+import {useEffect, useState} from "react";
 import BacklogsTable from "../tables/BacklogsTable.jsx";
 import SprintsAccordion from "../accordions/SprintsAccordion.jsx";
 import GroupPage from "./GroupPage.jsx";
@@ -12,9 +10,13 @@ import GroupPage from "./GroupPage.jsx";
 function GroupPageNavigator() {
     const navigate = useNavigate();
     const {projectId} = useParams();
-    const [currentDisplayPage, setCurrentDisplayPage] = useState(LINK_LABEL.GROUP_HOME);
+    const [currentDisplayPage, setCurrentDisplayPage] = useState(() => {
+        return localStorage.getItem(LOCAL_STORAGE_ITEM.GROUP_PAGE_CURRENT_DISPLAY_TAB) || LINK_LABEL.GROUP_HOME;
+    });
 
-
+    useEffect(() => {
+        localStorage.setItem(LOCAL_STORAGE_ITEM.GROUP_PAGE_CURRENT_DISPLAY_TAB, currentDisplayPage);
+    }, [currentDisplayPage]);
 
     const handleGoingBackToProjectPage = () => {
         navigate(`${ROUTE.PROJECT}/${projectId}`);
@@ -32,13 +34,9 @@ function GroupPageNavigator() {
         setCurrentDisplayPage(LINK_LABEL.SPRINTS);
     }
 
-    const handleSettingsPageDisplay = () => {
-        setCurrentDisplayPage(LINK_LABEL.SETTINGS);
-    }
-
-    return(
+    return (
         <div className="project-manager-bg">
-            <ProjectPageNavBar />
+            <ProjectPageNavBar/>
             <Nav variant="tabs" defaultActiveKey={currentDisplayPage}>
                 <Nav.Item>
                     <Nav.Link onClick={handleGoingBackToProjectPage}>{LINK_LABEL.BACK}</Nav.Link>
@@ -66,25 +64,17 @@ function GroupPageNavigator() {
                     >{LINK_LABEL.SPRINTS}
                     </Nav.Link>
                 </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link
-                        eventKey={LINK_LABEL.SETTINGS}
-                        onClick={handleSettingsPageDisplay}
-                    >
-                        {LINK_LABEL.SETTINGS}
-                    </Nav.Link>
-                </Nav.Item>
             </Nav>
-            { currentDisplayPage === LINK_LABEL.GROUP_HOME && (
-                 <GroupPage/>
+            {currentDisplayPage === LINK_LABEL.GROUP_HOME && (
+                <GroupPage/>
             )}
-            { currentDisplayPage === LINK_LABEL.BACKLOGS && (
+            {currentDisplayPage === LINK_LABEL.BACKLOGS && (
                 <BacklogsTable/>
             )}
-            { currentDisplayPage === LINK_LABEL.SPRINTS && (
+            {currentDisplayPage === LINK_LABEL.SPRINTS && (
                 <SprintsAccordion/>
             )}
-            { currentDisplayPage === LINK_LABEL.SETTINGS && (
+            {currentDisplayPage === LINK_LABEL.SETTINGS && (
                 <p>you&apos;re in Settings Page </p>
             )}
         </div>

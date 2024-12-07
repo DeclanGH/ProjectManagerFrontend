@@ -68,6 +68,16 @@ export const DELETE_PROJECT = gql`
     }`
 ;
 
+export const DELETE_GROUP = gql`
+    mutation DeleteGroup($userEmail: String!, $groupId: ID!, $projectId: ID!) {
+        deleteGroup(
+            email: $userEmail
+            groupId: $groupId
+            projectId: $projectId
+        )
+    }`
+;
+
 export const CREATE_BACKLOG = gql`
     mutation CreateBacklog($userEmail: String!, $projectId: ID!, $groupId: ID!, $backlogName: String!, 
         $backlogDescription: String!, $backlogEffort: Int!) {
@@ -228,6 +238,38 @@ export const CREATE_SPRINT = gql`
                     isOwner
                 }
             }
+        }
+    }`
+;
+
+export const PROMOTE_MEMBER_TO_OWNER = gql`
+    mutation PromoteMemberToOwner($userEmail: String!, $memberEmail: String!, $projectId: ID!) {
+        promoteMemberToOwner(
+            userEmail: $userEmail
+            memberEmail: $memberEmail
+            projectId: $projectId
+        ) {
+            email
+            firstName
+            lastName
+            isCreator
+            isOwner
+        }
+    }`
+;
+
+export const DEMOTE_OWNER_TO_MEMBER = gql`
+    mutation DemoteOwnerToMember($userEmail: String!, $memberEmail: String!, $projectId: ID!) {
+        demoteOwnerToMember(
+            userEmail: $userEmail
+            memberEmail: $memberEmail
+            projectId: $projectId
+        ) {
+            email
+            firstName
+            lastName
+            isCreator
+            isOwner
         }
     }`
 ;

@@ -4,12 +4,15 @@ import {CREATE_SPRINT} from "../../graphql/mutations.js";
 import PropTypes from "prop-types";
 import {FaPlus} from "react-icons/fa";
 import Button from "react-bootstrap/Button";
-import {BUTTON_LABEL, FORM_LABEL, MAXIMUM} from "../../common/constants.js";
+import {BUTTON_LABEL, FORM_LABEL, MAXIMUM, TOAST_VARIANT} from "../../common/constants.js";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
 import DateHelper from "../helpers/DateHelper.js";
+import {GET_GROUP_SPRINTS} from "../../graphql/queries.js";
+import ToastNotification from "../alerts/ToastNotification.jsx";
+import ErrorMessageHandler from "../helpers/ErrorMessageHandler.js";
 
 function CreateSprintModal({ userEmail, projectId, groupId }) {
     const [show, setShow] = useState(false);
@@ -17,11 +20,18 @@ function CreateSprintModal({ userEmail, projectId, groupId }) {
     const [sprintNameError, setSprintNameError] = useState(null);
     const [sprintStartDate, setSprintStartDate] = useState(new Date());
     const [sprintEndDate, setSprintEndDate] = useState(null);
+    const [toastNotification, setToastNotification] = useState({
+        show: false, variant: TOAST_VARIANT.INFO, message: ""
+    });
+
+    const showToastNotification = (variant, message) => {
+        setToastNotification({ show: true, variant: variant, message: message });
+    };
 
     const [createSprint, {loading}] = useMutation(CREATE_SPRINT);
 
     const handleCreateSprint = async () => {
-        // some checks before hand
+        // some checks beforehand
         if (!(sprintName.trim().length > 0)) {
             setSprintNameError("A sprint name is required");
             return;
@@ -41,11 +51,31 @@ function CreateSprintModal({ userEmail, projectId, groupId }) {
                     sprintName,
                     startDate: startDateInYearMonthDayFormat,
                     endDate: endDateInYearMonthDayFormat,
+                },
+                update: (cache, {data}) => {
+                    const newSprint = data?.createSprint;
+
+                    const existingSprintsData = cache.readQuery({
+                        query: GET_GROUP_SPRINTS,
+                        variables: { userEmail, projectId, groupId }
+                    })
+
+                    if (newSprint && existingSprintsData) {
+                        cache.writeQuery({
+                            query: GET_GROUP_SPRINTS,
+                            variables: { userEmail, projectId, groupId },
+                            data: {
+                                getGroupSprints: [newSprint, ...existingSprintsData.getGroupSprints]
+                            },
+                        })
+                        handleClose();
+                        showToastNotification(TOAST_VARIANT.SUCCESS, "Successfully created sprint.");
+                    }
                 }
             });
-            handleClose()
         } catch (error) {
-            console.error(`Error creating sprint: ${error.message}`);
+            const errorMessage = ErrorMessageHandler.parseProjectMangerStatusCode(error);
+            showToastNotification(TOAST_VARIANT.DANGER, errorMessage);
         }
     }
 
@@ -153,6 +183,17 @@ function CreateSprintModal({ userEmail, projectId, groupId }) {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            <ToastNotification
+                show={toastNotification.show}
+                variant={toastNotification.variant}
+                message={toastNotification.message}
+                onClose={() => setToastNotification({
+                    show: false,
+                    variant: TOAST_VARIANT.INFO,
+                    message: ""
+                })}
+            />
         </>
     );
 }

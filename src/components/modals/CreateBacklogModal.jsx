@@ -3,8 +3,11 @@ import { useMutation } from '@apollo/client';
 import {useState} from "react";
 import PropTypes from "prop-types";
 import {CREATE_BACKLOG} from "../../graphql/mutations.js";
-import {BUTTON_LABEL, FORM_LABEL, MAXIMUM, TIPS} from "../../common/constants.js";
+import {BUTTON_LABEL, FORM_LABEL, MAXIMUM, TIPS, TOAST_VARIANT} from "../../common/constants.js";
 import {FaInfoCircle, FaPlus} from "react-icons/fa";
+import ErrorMessageHandler from "../helpers/ErrorMessageHandler.js";
+import {GET_GROUP_BACKLOGS} from "../../graphql/queries.js";
+import ToastNotification from "../alerts/ToastNotification.jsx";
 
 function CreateBacklogModal({ userEmail, projectId, groupId }) {
     const [show, setShow] = useState(false);
@@ -13,6 +16,13 @@ function CreateBacklogModal({ userEmail, projectId, groupId }) {
     const [backlogEffort, setBacklogEffort] = useState(1);
     const [backlogNameError, setBacklogNameError] = useState(null);
     const [backlogEffortError, setBacklogEffortError] = useState(null);
+    const [toastNotification, setToastNotification] = useState({
+        show: false, variant: TOAST_VARIANT.INFO, message: ""
+    });
+
+    const showToastNotification = (variant, message) => {
+        setToastNotification({ show: true, variant: variant, message: message });
+    };
 
     const [createBacklog] = useMutation(CREATE_BACKLOG);
 
@@ -75,16 +85,38 @@ function CreateBacklogModal({ userEmail, projectId, groupId }) {
                     backlogName,
                     backlogDescription,
                     backlogEffort
-                }
+                },
+                update: (cache, {data: createBacklogData}) => {
+                    const newBacklog = createBacklogData?.createBacklog;
+
+                    const existingBacklogsData = cache.readQuery({
+                        query: GET_GROUP_BACKLOGS,
+                        variables: { userEmail, projectId, groupId }
+                    });
+
+                    if (newBacklog && existingBacklogsData) {
+                        cache.writeQuery({
+                            query: GET_GROUP_BACKLOGS,
+                            variables: { userEmail, projectId, groupId },
+                            data: {
+                                getGroupBacklogs: [newBacklog, ...existingBacklogsData.getGroupBacklogs]
+                            },
+                        })
+                        handleClose();
+                        showToastNotification(TOAST_VARIANT.SUCCESS, "Successfully created backlog.");
+                    }
+                },
             });
-            handleClose();
         } catch (error) {
-            console.error('Error creating backlog:', error);
+            const errorMessage = ErrorMessageHandler.parseProjectMangerStatusCode(error);
+            showToastNotification(TOAST_VARIANT.DANGER, errorMessage);
         }
     };
 
     const resetState = () => {
         setShow(false);
+        setBacklogName("");
+        setBacklogDescription("");
         setBacklogNameError(null);
         setBacklogEffort(1)
         setBacklogEffortError(null);
@@ -180,6 +212,17 @@ function CreateBacklogModal({ userEmail, projectId, groupId }) {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            <ToastNotification
+                show={toastNotification.show}
+                variant={toastNotification.variant}
+                message={toastNotification.message}
+                onClose={() => setToastNotification({
+                    show: false,
+                    variant: TOAST_VARIANT.INFO,
+                    message: ""
+                })}
+            />
         </>
     );
 }

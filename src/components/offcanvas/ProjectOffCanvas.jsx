@@ -3,8 +3,6 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faInfoCircle} from "@fortawesome/free-solid-svg-icons";
 import {useState} from "react";
 import PropTypes from "prop-types";
-import CreatorBadge from "../badges/CreatorBadge.jsx";
-import OwnerBadge from "../badges/OwnerBadge.jsx";
 
 function ProjectOffCanvas({ projectDetails }) {
 

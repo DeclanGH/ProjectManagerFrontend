@@ -3,7 +3,7 @@ import { GET_GROUP_SPRINT } from "../../graphql/queries.js";
 import { useMutation, useQuery, useSubscription } from "@apollo/client";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
-import { BACKLOG_STATE, BACKLOG_STATE_NAME } from "../../common/constants.js";
+import {BACKLOG_STATE, BACKLOG_STATE_NAME, TOAST_VARIANT} from "../../common/constants.js";
 import { BACKLOG_STATE_CHANGED_IN_SPRINT } from "../../graphql/subscriptions.js";
 import LoadingSpinner from "../spinners/LoadingSpinner.jsx";
 import { DndProvider } from "react-dnd";
@@ -15,11 +15,21 @@ import ProjectPageNavBar from "../navbars/ProjectPageNavBar.jsx";
 import SprintBadgeHandler from "../helpers/SprintBadgeHandler.jsx";
 import {TouchBackend} from "react-dnd-touch-backend";
 import { isMobile } from "react-device-detect";
+import ToastNotification from "../alerts/ToastNotification.jsx";
+import ErrorMessageHandler from "../helpers/ErrorMessageHandler.js";
 
 function SprintPage() {
     const backendBasedOnDevice = isMobile ? TouchBackend : HTML5Backend;
     const { user } = useAuth0();
     const { projectId, groupId, sprintId } = useParams();
+    const [toastNotification, setToastNotification] = useState({
+        show: false, variant: TOAST_VARIANT.INFO, message: ""
+    });
+
+    const showToastNotification = (variant, message) => {
+        setToastNotification({ show: true, variant: variant, message: message });
+    };
+
     const [backlogs, setBacklogs] = useState({
         [BACKLOG_STATE.NOT_STARTED]: [],
         [BACKLOG_STATE.IN_PROGRESS]: [],
@@ -43,7 +53,6 @@ function SprintPage() {
         variables: { sprintId },
         onData: ({ data }) => {
             const updatedBacklog = data?.backlogStateChangedInSprint;
-            console.log(data)
             if (updatedBacklog) {
                 setBacklogs((prevBacklogs) => {
                     const newBacklogs = { ...prevBacklogs };
@@ -58,8 +67,6 @@ function SprintPage() {
 
                     return newBacklogs;
                 });
-            } else {
-                console.warn("Subscription received undefined or invalid data.");
             }
         },
     });
@@ -97,7 +104,8 @@ function SprintPage() {
                 },
             });
         } catch (error) {
-            console.error("Error updating backlog state: ", error);
+            const errorMessage = ErrorMessageHandler.parseProjectMangerStatusCode(error);
+            showToastNotification(TOAST_VARIANT.DANGER, errorMessage);
         }
     };
 
@@ -107,7 +115,7 @@ function SprintPage() {
     const sprint = sprintData?.getGroupSprint;
 
     return (
-        <div>
+        <div className="project-manager-bg">
             <ProjectPageNavBar/>
             <DndProvider backend={backendBasedOnDevice}>
                 <Container fluid className="mt-3">
@@ -118,6 +126,7 @@ function SprintPage() {
                                 <SprintBadgeHandler sprintDetail={sprint}/>
                             </h3>
                         </Stack>
+                        <hr  className="my-3"/>
                     </Row>
                     <Row>
                         {Object.keys(BACKLOG_STATE).map((stateKey) => (
@@ -131,6 +140,17 @@ function SprintPage() {
                     </Row>
                 </Container>
             </DndProvider>
+
+            <ToastNotification
+                show={toastNotification.show}
+                variant={toastNotification.variant}
+                message={toastNotification.message}
+                onClose={() => setToastNotification({
+                    show: false,
+                    variant: TOAST_VARIANT.INFO,
+                    message: ""
+                })}
+            />
         </div>
     );
 }

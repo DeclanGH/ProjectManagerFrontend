@@ -1,8 +1,15 @@
 import {useMutation, useQuery} from "@apollo/client";
 import {GET_GROUP_MEMBERS, GET_GROUP_SPRINTS} from "../../graphql/queries.js";
 import Modal from "react-bootstrap/Modal";
-import {Button} from "react-bootstrap";
-import {ALERT_MESSAGE, ALERT_VARIANT, BACKLOG_STATE, BACKLOG_STATE_NAME, BUTTON_LABEL} from "../../common/constants.js";
+import {Button, Dropdown} from "react-bootstrap";
+import {
+    ALERT_MESSAGE,
+    ALERT_VARIANT,
+    BACKLOG_STATE,
+    BACKLOG_STATE_NAME,
+    BUTTON_LABEL,
+    TOAST_VARIANT
+} from "../../common/constants.js";
 import Form from "react-bootstrap/Form";
 import PropTypes from "prop-types";
 import LoadingSpinner from "../spinners/LoadingSpinner.jsx";
@@ -11,12 +18,21 @@ import ProjectMemberObjectParser from "../helpers/ProjectMemberObjectParser.js";
 import {useState} from "react";
 import {UPDATE_BACKLOG} from "../../graphql/mutations.js";
 import SimpleAlert from "../alerts/SimpleAlert.jsx";
+import ToastNotification from "../alerts/ToastNotification.jsx";
+import ErrorMessageHandler from "../helpers/ErrorMessageHandler.js";
 
 function UpdateBacklogModal({userEmail, projectId, groupId, backlogId, isModifiable }) {
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedSprint, setSelectedSprint] = useState(null);
     const [selectedBacklogStatus, setSelectedBacklogStatus] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [toastNotification, setToastNotification] = useState({
+        show: false, variant: TOAST_VARIANT.INFO, message: ""
+    });
+
+    const showToastNotification = (variant, message) => {
+        setToastNotification({ show: true, variant: variant, message: message });
+    };
 
     const { data: groupMembersData } = useQuery(GET_GROUP_MEMBERS, {
         variables: {
@@ -35,10 +51,9 @@ function UpdateBacklogModal({userEmail, projectId, groupId, backlogId, isModifia
         }
     });
 
-    const [updateBacklog, { loading: updating, error: updateError }] = useMutation(UPDATE_BACKLOG);
+    const [updateBacklog, { loading: updating }] = useMutation(UPDATE_BACKLOG);
 
     if (updating) return <LoadingSpinner />;
-    if (updateError) return <p>{updateError.message}</p>;
 
     const members = groupMembersData?.getGroupMembers;
     const sprints = groupSprintsData?.getGroupSprints;
@@ -96,24 +111,32 @@ function UpdateBacklogModal({userEmail, projectId, groupId, backlogId, isModifia
                 backlogState: selectedBacklogStatus,
             }
         })
-            .then((response) => {
+            .then(() => {
+                showToastNotification(TOAST_VARIANT.SUCCESS, "Backlog updated successfully.");
                 handleModalClose();
             })
-            .catch(err => {
-                console.error(err);
-                // TODO: remove error logging and add a toast notification
+            .catch(error => {
+                const errorMessage = ErrorMessageHandler.parseProjectMangerStatusCode(error);
+                showToastNotification(TOAST_VARIANT.DANGER, errorMessage);
+                handleModalClose();
             });
     };
 
     return (
         <div>
-            <Button
-                variant="primary"
-                onClick={handleUpdateButtonClick}
-                disabled={!isModifiable}
-            >
-                {BUTTON_LABEL.UPDATE}
-            </Button>
+            <Dropdown>
+                <Dropdown.Toggle disabled={!isModifiable}>
+                    {BUTTON_LABEL.ACTION}
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                    <Dropdown.Item onClick={handleUpdateButtonClick}>
+                        {BUTTON_LABEL.UPDATE}
+                    </Dropdown.Item>
+                    <Dropdown.Item className="text-danger" onClick={() => console.log("deleted")}>
+                        {BUTTON_LABEL.DELETE}
+                    </Dropdown.Item>
+                </Dropdown.Menu>
+            </Dropdown>
 
             <Modal show={showModal} onHide={handleModalClose}>
                 <Modal.Header closeButton>
@@ -167,6 +190,17 @@ function UpdateBacklogModal({userEmail, projectId, groupId, backlogId, isModifia
                     <Button variant="primary" onClick={handleSave}>{BUTTON_LABEL.SAVE}</Button>
                 </Modal.Footer>
             </Modal>
+
+            <ToastNotification
+                show={toastNotification.show}
+                variant={toastNotification.variant}
+                message={toastNotification.message}
+                onClose={() => setToastNotification({
+                    show: false,
+                    variant: TOAST_VARIANT.INFO,
+                    message: ""
+                })}
+            />
         </div>
     );
 }

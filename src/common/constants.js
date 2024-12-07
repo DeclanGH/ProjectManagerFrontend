@@ -1,11 +1,9 @@
 export const APPLICATION_NAME = "Project Manager";
 
-export const GRAPHQL_HTTP_URI = "http://localhost:8080/graphql";
-export const GRAPHQL_WEBSOCKET_URI = "ws://localhost:8080/graphql";
-
-export const NOTIFICATION_DELAY = 3000;
+export const NOTIFICATION_DELAY = 4500;
 
 export const BUTTON_LABEL = {
+    ACTION: "Action",
     LOGIN: "Log In",
     LOGOUT: "Log Out",
     CREATE: "Create",
@@ -14,10 +12,19 @@ export const BUTTON_LABEL = {
     UPDATE: "Update",
     EDIT: "Edit",
     SAVE: "Save",
+    DELETE: "Delete",
     CANCEL: "Cancel",
     CREATE_GROUP: "Create Group",
     CREATE_BACKLOG: "Create Backlog",
     CREATE_SPRINT: "Create Sprint",
+    PROMOTE: "Promote",
+    DEMOTE: "Demote",
+    REMOVE_FROM_GROUP: "Remove from Group",
+    REMOVE_FROM_PROJECT: "Remove from Project",
+}
+
+export const LOCAL_STORAGE_ITEM = {
+    GROUP_PAGE_CURRENT_DISPLAY_TAB: "groupPageCurrentDisplayTab",
 }
 
 export const FORM_LABEL = {
@@ -51,6 +58,7 @@ export const SPRINT_ID = "/:sprintId";
 export const ROUTE = {
     HOME: "/",
     DASHBOARD: "/dashboard",
+    ABOUT: "/about",
     PROJECT: "/project",
     GROUP: "/group",
     BACKLOG: "/backlog",

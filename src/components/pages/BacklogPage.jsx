@@ -29,129 +29,158 @@ function BacklogPage() {
     }
 
     if (loading) return <LoadingSpinner />;
-    if (error) return <p>{error.message}</p>;
+    if (error) return <p>{"Error Loading Backlogs..."}</p>;
 
-    const backlog = data.getGroupBacklog;
+    const backlog = data?.getGroupBacklog;
 
     return (
-        <div className="project-manager-bg">
-            <ProjectPageNavBar />
-            <Container className="mt-4">
+        (backlog &&
+            <div className="project-manager-bg">
+                <ProjectPageNavBar/>
+                <Container className="mt-4">
 
-                <Row>
-                    <Col>
-                        <h3>{backlog.name}</h3>
-                    </Col>
-                </Row>
+                    <Row>
+                        <Col>
+                            <h3>{backlog.name}</h3>
+                        </Col>
+                    </Row>
 
-                <Row className="mt-2">
-                    <Col>
-                        <p>
-                            <strong>{BACKLOG_PAGE_FIELD_NAME.ISSUED_BY}: </strong>
-                            <span style={{display: 'inline'}}>
-                                <div style={{ display: 'inline-flex' }}>
+                    <Row className="mt-2">
+                        <Col>
+                            <div>
+                                <strong>{BACKLOG_PAGE_FIELD_NAME.ISSUED_BY}: </strong>
+                                <span style={{display: 'inline'}}>
+                                <div style={{display: 'inline-flex'}}>
                                     <MemberBadgeHandler memberInfo={backlog.creator}/>
                                 </div>
                             </span>
-                        </p>
-                    </Col>
-                </Row>
-
-                <Row className="mt-2">
-                    <Col>
-                        <p>
-                            <strong>{BACKLOG_PAGE_FIELD_NAME.ISSUE_DATE}: </strong>{DateHelper.convertToReadableFormat(backlog.dateCreated)}
-                        </p>
-                    </Col>
-                </Row>
-
-                {backlog.dateCompleted &&
-                    <Row className="mt-2">
-                        <Col>
-                            <p>
-                                <strong>{BACKLOG_PAGE_FIELD_NAME.CLOSED_DATE}: </strong>{DateHelper.convertToReadableFormat(backlog.dateCompleted)}
-                            </p>
+                            </div>
                         </Col>
                     </Row>
-                }
 
-                <Row className="mt-2">
-                    <Col>
-                        <p>
-                            <strong>{BACKLOG_PAGE_FIELD_NAME.DESCRIPTION}: </strong>{backlog.description}
-                        </p>
-                    </Col>
-                </Row>
+                    <br/>
 
-                <Row className="mt-2">
-                    <Col>
-                        <p>
-                            <strong>{BACKLOG_PAGE_FIELD_NAME.STATUS}: </strong>{BACKLOG_STATE_NAME[backlog.state]}
-                        </p>
-                    </Col>
-                </Row>
-
-                <Row className="mt-2">
-                    <Col>
-                        <p>
-                            <strong>{BACKLOG_PAGE_FIELD_NAME.ESTIMATED_EFFORT}: </strong>{backlog.effort}
-                        </p>
-                    </Col>
-                </Row>
-
-                <Row className="mt-2">
-                    <Col>
-                        <p>
-                            <strong>{BACKLOG_PAGE_FIELD_NAME.ASSIGNED_TO}:</strong>
-                            <span style={{display: 'inline'}}>
-                                    <div style={{display: 'inline-flex'}}>
-                                        <MemberBadgeHandler memberInfo={backlog.assignee}/>
-                                    </div>
-                            </span>
-                        </p>
-                    </Col>
-                </Row>
-
-                {backlog.assigner &&
                     <Row className="mt-2">
                         <Col>
-                            <p>
-                                <strong>{BACKLOG_PAGE_FIELD_NAME.ASSIGNED_BY}:</strong>
+                            <div>
+                                <strong>{BACKLOG_PAGE_FIELD_NAME.ISSUE_DATE}: </strong>{DateHelper.convertToReadableFormat(backlog.dateCreated)}
+                            </div>
+                        </Col>
+                    </Row>
+
+                    <br/>
+
+                    {backlog.dateCompleted &&
+                        <div>
+                            <Row className="mt-2">
+                                <Col>
+                                    <div>
+                                        <strong>{BACKLOG_PAGE_FIELD_NAME.CLOSED_DATE}: </strong>{DateHelper.convertToReadableFormat(backlog.dateCompleted)}
+                                    </div>
+                                </Col>
+                            </Row>
+
+                            <br/>
+                        </div>
+                    }
+
+                    <Row className="mt-2">
+                        <Col>
+                            <div>
+                                <strong>{BACKLOG_PAGE_FIELD_NAME.DESCRIPTION}: </strong>{backlog.description}
+                            </div>
+                        </Col>
+                    </Row>
+
+                    <br/>
+
+                    <Row className="mt-2">
+                        <Col>
+                            <div>
+                                <strong>{BACKLOG_PAGE_FIELD_NAME.STATUS}: </strong>{BACKLOG_STATE_NAME[backlog.state]}
+                            </div>
+                        </Col>
+                    </Row>
+
+                    <br/>
+
+                    <Row className="mt-2">
+                        <Col>
+                            <div>
+                                <strong>{BACKLOG_PAGE_FIELD_NAME.ESTIMATED_EFFORT}: </strong>{backlog.effort}
+                            </div>
+                        </Col>
+                    </Row>
+
+                    <br/>
+
+                    <Row className="mt-2">
+                        <Col>
+                            <div>
+                                <strong>{BACKLOG_PAGE_FIELD_NAME.ASSIGNED_TO}: </strong>
                                 <span style={{display: 'inline'}}>
+                                    <div style={{display: 'inline-flex'}}>
+                                        {backlog?.assignee &&
+                                            <MemberBadgeHandler memberInfo={backlog.assignee}/>
+                                        }
+                                    </div>
+                            </span>
+                            </div>
+                        </Col>
+                    </Row>
+
+                    <br/>
+
+                    {backlog.assigner &&
+                        <div>
+                            <Row className="mt-2">
+                                <Col>
+                                    <div>
+                                        <strong>{BACKLOG_PAGE_FIELD_NAME.ASSIGNED_BY}: </strong>
+                                        <span style={{display: 'inline'}}>
                                     <div style={{display: 'inline-flex'}}>
                                         <MemberBadgeHandler memberInfo={backlog.assigner}/>
                                     </div>
                                 </span>
-                            </p>
+                                    </div>
+                                </Col>
+                            </Row>
+
+                            <br/>
+                        </div>
+                    }
+
+                    <Row className="mt-2">
+                        <Col>
+                            <div>
+                                <strong>{BACKLOG_PAGE_FIELD_NAME.ASSIGNED_SPRINT}: </strong>{backlog.sprint?.name}
+                            </div>
                         </Col>
                     </Row>
-                }
 
-                <Row className="mt-2">
-                    <Col>
-                        <p>
-                            <strong>{BACKLOG_PAGE_FIELD_NAME.ASSIGNED_SPRINT}: </strong>{backlog.sprint?.name}
-                        </p>
-                    </Col>
-                </Row>
+                    <br/>
 
-                <Row className="mt-4">
-                    <Col>
-                        <Button variant="secondary" onClick={handleBackButtonClick}>{BUTTON_LABEL.BACK}</Button>
-                    </Col>
-                    <Col className="text-end">
-                        <UpdateBacklogModal
-                            groupId={groupId}
-                            projectId={projectId}
-                            backlogId={backlogId}
-                            userEmail={user.email}
-                            isModifiable={backlog.isModifiable}
-                            groupSprintDetails={null}
-                        />
-                    </Col>
-                </Row>
-            </Container>
-        </div>
+                    <Row className="mt-4">
+                        <Col>
+                            <Button variant="secondary" onClick={handleBackButtonClick}>{BUTTON_LABEL.BACK}</Button>
+                        </Col>
+                        <Col className="text-end">
+                            <UpdateBacklogModal
+                                groupId={groupId}
+                                projectId={projectId}
+                                backlogId={backlogId}
+                                userEmail={user.email}
+                                isModifiable={backlog.isModifiable}
+                                groupSprintDetails={null}
+                            />
+                        </Col>
+                    </Row>
+
+                    <br/>
+
+                </Container>
+            </div>
+        )
     );
 }
 

@@ -84,6 +84,8 @@ export const GET_USER_DETAILS = gql`
             lastName
             isCreator
             isOwner
+            isGroupCreator
+            isGroupMember
         }
     }`
 ;
@@ -262,6 +264,37 @@ export const GET_PROJECT_BURNDOWN_CHART_DATA = gql`
             labels
             effortPointsRemaining
             idealEffortPointsRemaining
+        }
+    }`
+;
+
+export const GET_PROJECT_MEMBER = gql`
+    query GetProjectMember($userEmail: String!, $projectId: ID!, $groupId: ID) {
+        getProjectMember(
+            userEmail: $userEmail
+            projectId: $projectId
+            groupId: $groupId
+        ){
+            email
+            firstName
+            lastName
+            isCreator
+            isOwner
+            isGroupCreator
+            isGroupMember
+        }
+    }`
+;
+
+export const GET_NOT_COMPLETED_ASSIGNED_BACKLOGS = gql`
+    query GetNotCompletedAssignedBacklogs($userEmail: String!, $projectId: ID!, $groupId: ID!) {
+        getNotCompletedAssignedBacklogs(
+            userEmail: $userEmail
+            projectId: $projectId
+            groupId: $groupId
+        ){
+            id
+            name
         }
     }`
 ;

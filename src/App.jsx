@@ -9,6 +9,7 @@ import InviteHandler from "./components/helpers/InviteHandler.jsx";
 import GroupPageNavigator from "./components/pages/GroupPageNavigator.jsx";
 import BacklogPage from "./components/pages/BacklogPage.jsx";
 import SprintPage from "./components/pages/SprintPage.jsx";
+import AboutPage from "./components/pages/AboutPage.jsx";
 //import {Analytics} from "@vercel/analytics/vue";
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
 
                     <Route element={<PrivateRoute />}>
                         <Route path={`${ROUTE.DASHBOARD}`} element={<Dashboard/>} />
+                        <Route path={`${ROUTE.ABOUT}`} element={<AboutPage/>} />
                         <Route path={`${ROUTE.PROJECT}${PROJECT_ID}`} element={<ProjectPage />} />
                         <Route path={`${ROUTE.INVITE}${PROJECT_ID}`} element={<InviteHandler />} />
                         <Route path={`${ROUTE.PROJECT}${PROJECT_ID}${ROUTE.GROUP}${GROUP_ID}`} element={<GroupPageNavigator />} />

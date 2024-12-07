@@ -60,7 +60,7 @@ function Dashboard() {
                 />
             }
 
-            {!error && (
+            {!error && data && data.getUserProjects?.length > 0 ? (
                 <>
                     <Container className="mt-4">
                         <Row className="g-4">
@@ -80,7 +80,7 @@ function Dashboard() {
                         </Row>
                     </Container>
                 </>
-            )}
+            ) : (<p>Create your first project! 🚀</p>)}
         </div>
     );
 }

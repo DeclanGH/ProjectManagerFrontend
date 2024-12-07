@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import {useDrag} from "react-dnd";
-import {Badge, ListGroup} from "react-bootstrap";
+import {Badge, ListGroup, Stack} from "react-bootstrap";
 import ProjectManagerLink from "../helpers/ProjectManagerLink.jsx";
 import {ROUTE} from "../../common/constants.js";
 import {useParams} from "react-router-dom";
@@ -18,9 +18,15 @@ function BacklogCard({backlog}) {
 
     return (
         <ListGroup.Item ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }}>
-            <ProjectManagerLink linkTo={`${ROUTE.PROJECT}/${projectId}${ROUTE.GROUP}/${groupId}${ROUTE.BACKLOG}/${backlog.id}`} >
-                {backlog.name}
-            </ProjectManagerLink>
+            <Stack direction={"horizontal"} spacing={2} className="mb-2">
+                <ProjectManagerLink
+                    linkTo={`${ROUTE.PROJECT}/${projectId}${ROUTE.GROUP}/${groupId}${ROUTE.BACKLOG}/${backlog.id}`}
+                >
+                    {backlog.name}
+                </ProjectManagerLink>
+                <Badge bg="secondary" className="ms-2" pill>{backlog.effort}</Badge>
+            </Stack>
+
             {backlog.assignee ? (
                 <MemberBadgeHandler memberInfo={backlog.assignee}/>
             ) : (

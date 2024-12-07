@@ -12,7 +12,7 @@ function ToastNotification({ show, variant, message, onClose }) {
                 autohide
                 bg={variant}
             >
-                <Toast.Body>{message}</Toast.Body>
+                <Toast.Body className="text-light text-center">{message}</Toast.Body>
             </Toast>
         </ToastContainer>
     );

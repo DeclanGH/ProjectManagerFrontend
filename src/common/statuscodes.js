@@ -28,6 +28,11 @@ export const ProjectMangerStatusCode = {
      * client.
      */
     NOT_FOUND: "404",
+    NOT_FOUND_USER: "404.1",
+    NOT_FOUND_PROJECT: "404.2",
+    NOT_FOUND_GROUP: "404.3",
+    NOT_FOUND_SPRINT: "404.4",
+    NOT_FOUND_BACKLOG: "404.5",
 
     INTERNAL_SERVER_ERROR: "500",
 }

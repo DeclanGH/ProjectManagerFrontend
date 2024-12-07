@@ -1,6 +1,6 @@
 import {Container, Stack} from 'react-bootstrap';
 import {
-    GET_PROJECT_BURNDOWN_CHART_DATA,
+    GET_PROJECT_BURNDOWN_CHART_DATA, GET_PROJECT_MEMBER,
     GET_PROJECT_PAGE
 } from "../../graphql/queries.js";
 import {useQuery} from "@apollo/client";
@@ -28,6 +28,7 @@ function ProjectPage() {
         error: getProjectPageError,
         data: getProjectPageData } = useQuery(GET_PROJECT_PAGE, {
         variables: {projectId, userEmail},
+        fetchPolicy: "cache-and-network",
     });
     const {
         loading: burndownChartLoading,
@@ -36,7 +37,18 @@ function ProjectPage() {
         variables: {
             userEmail: user.email,
             projectId: projectId,
-        }
+        },
+        fetchPolicy: "cache-and-network",
+    });
+    const {
+        loading: projectMemberLoading,
+        error: projectMemberError,
+        data: projectMemberData } = useQuery(GET_PROJECT_MEMBER, {
+        variables: {
+            userEmail: user.email,
+            projectId: projectId,
+        },
+        fetchPolicy: "cache-and-network",
     });
     const [toastNotification, setToastNotification] = useState({
         show: false, variant: TOAST_VARIANT.INFO, message: ""
@@ -46,22 +58,24 @@ function ProjectPage() {
         setToastNotification({ show: true, variant: variant, message: message });
     };
 
-    if (projectPageLoading || burndownChartLoading) return <LoadingSpinner/>;
-    if (getProjectPageError || burndownChartError) {
+    if (projectMemberLoading || projectPageLoading || burndownChartLoading) return <LoadingSpinner/>;
+    if (projectMemberError || getProjectPageError || burndownChartError) {
         return <p>{getProjectPageError.message}: Error loading projects...</p>;
     }
 
     const projectDetails = getProjectPageData?.getProjectPage
     const burndownChartData = bdChartData?.getProjectBurndownChartData
-    //const userDetails = projectDetails.projectMembersList.find(member => member.email === userEmail);
+    const projectMember = projectMemberData?.getProjectMember
 
     return (
         <div className="project-manager-bg">
             <ProjectPageNavBar />
             <Container className="p-4" >
                 <Stack direction="vertical" gap={2}>
+                    <h1>Hello, {user.given_name ? user.given_name : user.nickname}! ✨</h1>
+                    <br/>
                     <Stack direction="horizontal" className="justify-content-between align-items-center">
-                        <h1>Hello, {user.given_name ? user.given_name : user.nickname}! ✨</h1>
+                        <h2>Project Page - {projectDetails?.projectTitle}</h2>
                         <ProjectOffCanvas projectDetails={projectDetails}/>
                     </Stack>
 
@@ -76,6 +90,7 @@ function ProjectPage() {
                                 projectId={projectId}
                                 projectGroupList={projectDetails.projectGroupList}
                                 showToastNotification={showToastNotification}
+                                projectMember={projectMember}
                             />
                         </GeneralCard>
                         <GeneralCard>

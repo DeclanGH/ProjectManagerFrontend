@@ -1,5 +1,5 @@
 import {Container, Dropdown, Nav, Navbar, NavDropdown, Offcanvas} from "react-bootstrap";
-import {APPLICATION_NAME, BUTTON_LABEL, LINK_LABEL, ROUTE} from "../../common/constants.js";
+import {ALERT_VARIANT, APPLICATION_NAME, BUTTON_LABEL, LINK_LABEL, ROUTE} from "../../common/constants.js";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAuth0} from "@auth0/auth0-react";
 import {useState} from "react";
@@ -8,6 +8,9 @@ import {GET_PROJECT_INVITE_LINK_PATH, GET_USER_DETAILS} from "../../graphql/quer
 import {useMutation, useQuery} from "@apollo/client";
 import LoadingSpinner from "../spinners/LoadingSpinner.jsx";
 import {DELETE_PROJECT} from "../../graphql/mutations.js";
+import {FaExclamationTriangle} from "react-icons/fa";
+import SimpleAlert from "../alerts/SimpleAlert.jsx";
+import WarningMessageHandler from "../helpers/WarningMessageHandler.js";
 
 
 function ProjectPageNavBar() {
@@ -16,19 +19,18 @@ function ProjectPageNavBar() {
     const { user, logout } = useAuth0();
     const [showTextCopyModal, setShowTextCopyModal] = useState(false);
     const [projectInviteLink, setProjectInviteLink] = useState("");
-    console.log("project id: ", projectId)
-    console.log("group id: ", groupId)
 
     const { data: projectMember, loading: projectMemberLoading, error: projectMemberError } =
         useQuery(GET_USER_DETAILS, {
             variables: { userEmail: user.email, projectId: projectId, groupId: groupId },
         });
     const userDetails = projectMember?.getUserDetails;
+    const alertMessage = WarningMessageHandler.getWarningMessageForNonGroupMember(userDetails);
 
     const { data: inviteData, loading: inviteLoading, error: inviteError } =
         useQuery(GET_PROJECT_INVITE_LINK_PATH, {
             variables: { projectId, userEmail: user.email },
-            //fetchPolicy: "network-only"
+            fetchPolicy: "network-only"
     });
 
     const [deleteProject, { loading: deleteLoading, error: deleteError }] =
@@ -85,7 +87,7 @@ function ProjectPageNavBar() {
 
     return(
         <div>
-            <Navbar expand={"lg"} className="navbar-dark bg-dark mb-3">
+            <Navbar expand={"lg"} className="navbar-dark bg-dark">
                 <Container fluid={true}>
                     <Navbar.Brand onClick={goToHome} style={{ cursor: "pointer" }}>{APPLICATION_NAME}</Navbar.Brand>
                     <Navbar.Toggle aria-controls={"offcanvasNavbar-expand-lg"} />
@@ -136,6 +138,15 @@ function ProjectPageNavBar() {
                     </Dropdown>
                 </Container>
             </Navbar>
+            {groupId && !userDetails?.isGroupMember &&
+                <SimpleAlert
+                    bodyMessage={alertMessage}
+                    variant={ALERT_VARIANT.WARNING}
+                    isDismissible={false}
+                >
+                    <FaExclamationTriangle/>
+                </SimpleAlert>
+            }
             <TextCopyModal
                 onClose={onClose}
                 textToCopy={projectInviteLink}

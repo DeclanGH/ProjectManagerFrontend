@@ -57,7 +57,7 @@ function BacklogsTable() {
         refetch();
     };
 
-    if (loading) return (<LoadingSpinner />);
+    if (loading) return <LoadingSpinner />;
     if (error) return (<p>{error.message}</p>);
 
     const groupBacklogs = data?.getGroupBacklogs;
@@ -78,7 +78,7 @@ function BacklogsTable() {
 
     return (
         <div className="p-3">
-            <Row className="align-items-center mb-3">
+            <Row className="align-items-center">
                 <Col xs="auto">
                     <FaSyncAlt onClick={handleRefresh} style={{cursor: "pointer"}}/>
                 </Col>
@@ -130,35 +130,40 @@ function BacklogsTable() {
                         </Row>
                     </Form>
                 </Col>
-                <Col xs="auto" className="ms-auto">
+                <Col xs="auto">
                     <CreateBacklogModal groupId={groupId} userEmail={user?.email} projectId={projectId}/>
                 </Col>
-                <Table striped bordered hover>
-                    <thead>
-                    <tr>
-                        <th>{BACKLOG_TABLE_HEADER.NAME}</th>
-                        <th>{BACKLOG_TABLE_HEADER.EFFORT}</th>
-                        <th>{BACKLOG_TABLE_HEADER.STATUS}</th>
-                        <th>{BACKLOG_TABLE_HEADER.ASSIGNED_MEMBER}</th>
-                        <th>{BACKLOG_TABLE_HEADER.ASSIGNED_SPRINT}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {filteredData.map((backlog, index) => (
-                        <tr key={index}>
-                            <td>
-                                <ProjectManagerLink linkTo={`${ROUTE.PROJECT}/${projectId}${ROUTE.GROUP}/${groupId}${ROUTE.BACKLOG}/${backlog.id}`}>
-                                    {backlog.name}
-                                </ProjectManagerLink>
-                            </td>
-                            <td>{backlog.effort}</td>
-                            <td>{BACKLOG_STATE_NAME[backlog.state]}</td>
-                            <td>{backlog.assignee?.firstName}</td>
-                            <td>{backlog.sprint?.name}</td>
+                {!error &&
+                    <Table striped bordered hover>
+                        <thead>
+                        <tr>
+                            <th>{BACKLOG_TABLE_HEADER.NAME}</th>
+                            <th>{BACKLOG_TABLE_HEADER.EFFORT}</th>
+                            <th>{BACKLOG_TABLE_HEADER.STATUS}</th>
+                            <th>{BACKLOG_TABLE_HEADER.ASSIGNED_MEMBER}</th>
+                            <th>{BACKLOG_TABLE_HEADER.ASSIGNED_SPRINT}</th>
                         </tr>
-                    ))}
-                    </tbody>
-                </Table>
+                        </thead>
+                        <tbody>
+                        {filteredData.map((backlog) => (
+                            <tr key={backlog.id}>
+                                <td>
+                                    <ProjectManagerLink linkTo={`${ROUTE.PROJECT}/${projectId}${ROUTE.GROUP}/${groupId}${ROUTE.BACKLOG}/${backlog.id}`}>
+                                        {backlog.name}
+                                    </ProjectManagerLink>
+                                </td>
+                                <td>{backlog.effort}</td>
+                                <td>{BACKLOG_STATE_NAME[backlog.state]}</td>
+                                <td>{backlog.assignee?.firstName}</td>
+                                <td>{backlog.sprint?.name}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </Table>
+                }
+                {error &&
+                    <p>An error occurred while retrieving backlogs</p>
+                }
             </Row>
         </div>
     );

@@ -1,4 +1,4 @@
-import {Accordion, Badge, Col, ListGroup, Row} from "react-bootstrap";
+import {Accordion, Col, ListGroup, Row} from "react-bootstrap";
 import {FaSyncAlt} from "react-icons/fa";
 import CreateSprintModal from "../modals/CreateSprintModal.jsx";
 import {useParams} from "react-router-dom";
@@ -20,20 +20,17 @@ function SprintsAccordion() {
             userEmail: user.email,
             projectId: projectId,
             groupId: groupId
-        }
+        },
     });
 
     if (loading) return (<LoadingSpinner />);
-    if (error) return (<p>{error.message}</p>);
+    if (error) return "Error loading sprints";
 
     const groupSprints = data?.getGroupSprints;
-    const sprintBacklogsArray = groupSprints?.backlogs;
-    console.log(sprintBacklogsArray)
 
     const handleRefresh = () => {
         refetch();
     }
-
 
     return (
         <div className="p-3">
@@ -73,7 +70,7 @@ function SprintsAccordion() {
                             </Accordion.Header>
                             <Accordion.Body>
                                 <ListGroup>
-                                    {sprintDetail.backlogs && sprintDetail.backlogs.length > 0 ? (
+                                    {sprintDetail?.backlogs && sprintDetail.backlogs.length > 0 ? (
                                         sprintDetail.backlogs.map((backlog) => (
                                             <ListGroup.Item key={backlog.id} >
                                                 <ProjectManagerLink

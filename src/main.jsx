@@ -36,15 +36,7 @@ const graphqlWebsocketLink = new GraphQLWsLink(
     createClient({
         url: appConfig.graphqlWebsocketUri,
         keepAlive: 10_000,
-        //lazy: true,
-        //lazyCloseTimeout: 60_000,
         shouldRetry: true,
-        on: {
-            connecting: () => console.info("Connecting to GraphQL"),
-            connected: () => console.info("Connected to GraphQL"),
-            closed: () => console.info("Closed GraphQL"),
-            error: error => console.error(error),
-        }
     })
 );
 
